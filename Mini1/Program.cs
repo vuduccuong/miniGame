@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Mini1
 {
@@ -10,23 +11,35 @@ namespace Mini1
     {
         static void Main(string[] args)
         {
+            Run();
+            Console.ReadLine();
+        }
+
+        private static async void Run()
+        {
             Console.OutputEncoding = Encoding.UTF8;
+            Console.WriteLine("Loading...");
             var watch = Stopwatch.StartNew();
             var students = DataSource();
+            var tasks = new List<Task<Students>>();
             foreach (var student in students)
             {
-                var data = ExcuteData(student);
-                DisPlayInfo(data);
+                tasks.Add(Task.Run(() => ExcuteData(student)));
+            }
+            var infos = await Task.WhenAll(tasks);
+            Console.Clear();
+            foreach (var info in infos)
+            {
+                DisPlayInfo(info);
             }
             watch.Stop();
 
             Console.WriteLine($"Tổng thời gian thực thi: {watch.ElapsedMilliseconds}ms");
-            Console.ReadLine();
         }
 
         private static void DisPlayInfo(Students studenInfo)
         {
-            Console.WriteLine($"Sinh viên {studenInfo.Name} hiện tại {studenInfo.Age} tủi");
+            Console.WriteLine($"Sinh viên '{studenInfo.Name}' hiện tại {studenInfo.Age} tủi");
         }
 
         private static Students ExcuteData(Students student)
